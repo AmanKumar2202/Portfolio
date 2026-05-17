@@ -1,201 +1,513 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Code2, Database, Cloud, Cpu, ExternalLink, Sparkles } from 'lucide-react';
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowRight,
+  Code2,
+  Database,
+  Cloud,
+  Cpu,
+  ExternalLink,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import {
+  TorusKnot,
+  Environment,
+  MeshTransmissionMaterial,
+} from "@react-three/drei";
+import * as THREE from "three";
+import HolographicCard from "../components/HolographicCard";
+
+// --- 3D GLASS RING ---
+const AnimatedRing = () => {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.15;
+      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
+    }
+  });
+
+  return (
+    <TorusKnot ref={meshRef} args={[1, 0.3, 128, 64]} scale={1.8}>
+      <MeshTransmissionMaterial
+        backside
+        thickness={1.5}
+        roughness={0}
+        transmission={1}
+        ior={1.5}
+        chromaticAberration={0.05}
+        clearcoat={1}
+        anisotropy={0.1}
+        color="#ffffff"
+      />
+    </TorusKnot>
+  );
+};
+
+function ProjectCard({
+  project,
+  index,
+}: {
+  project: {
+    id: string;
+    title: string;
+    description: string;
+    tech: string[];
+    highlights: string[];
+    gradient?: string;
+  };
+  index: number;
+}) {
+  return (
+    <Link to={`/projects/${project.id}`} className="block outline-none h-full">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{
+          duration: 0.7,
+          delay: index * 0.15,
+          ease: "easeOut",
+        }}
+        className="relative group h-full rounded-[2rem] p-[1.5px] overflow-hidden"
+      >
+        {/* Animated Gradient Border (Reveals on Hover) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-400 via-purple-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2rem]" />
+
+        {/* Default Static Border */}
+        <div className="absolute inset-0 bg-white/10 group-hover:opacity-0 transition-opacity duration-700 rounded-[2rem]" />
+
+        {/* Inner Card Content */}
+        <div className="relative h-full bg-slate-950/80 backdrop-blur-3xl rounded-[calc(2rem-1.5px)] p-8 flex flex-col transition-all duration-700 group-hover:bg-slate-950/60">
+          {/* Icon Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div
+              className={`w-16 h-16 bg-gradient-to-br ${project.gradient || "from-sky-400 to-emerald-400"} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}
+            >
+              <Code2 className="w-8 h-8 text-white drop-shadow-md" />
+            </div>
+            <div className="w-10 h-10 rounded-full bg-white/[0.03] border border-white/[0.05] flex items-center justify-center group-hover:bg-white/10 group-hover:rotate-45 transition-all duration-500">
+              <ArrowRight className="w-4 h-4 text-white" />
+            </div>
+          </div>
+
+          <h3 className="text-3xl font-bold mb-4 text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-400 transition-all duration-300">
+            {project.title}
+          </h3>
+
+          <p className="text-slate-400 mb-8 leading-relaxed flex-grow text-lg">
+            {project.description}
+          </p>
+
+          <div className="mb-8">
+            <p className="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest">
+              Key Highlights
+            </p>
+            <ul className="space-y-3">
+              {project.highlights.map((highlight) => (
+                <li
+                  key={highlight}
+                  className="text-sm text-slate-300 flex items-start gap-3 group-hover:text-white transition-colors duration-300"
+                >
+                  <span className="text-sky-400 mt-0.5 opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300">
+                    ✦
+                  </span>
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Tech Stack Pills */}
+          <div className="flex flex-wrap gap-2 pt-6 border-t border-white/10 mt-auto">
+            {project.tech.map((tech) => (
+              <span
+                key={tech}
+                className="px-3 py-1.5 bg-black/40 border border-white/5 text-slate-300 rounded-lg text-xs font-medium group-hover:border-white/20 group-hover:text-white transition-all duration-300"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
 
 export default function Home() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  const skills = [
-    { category: 'Frontend', items: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'] },
-    { category: 'Backend', items: ['Node.js', 'Express.js', 'REST APIs', 'Firebase'] },
-    { category: 'AI/ML', items: ['OpenAI GPT', 'NLP', 'Smart Search'] },
-    { category: 'Database', items: ['MongoDB', 'Firebase'] },
-    { category: 'DevOps', items: ['Docker', 'GCP', 'CI/CD'] },
-    { category: 'Other', items: ['WebSockets', 'SaaS', 'JWT/OAuth'] },
-  ];
-
   const projects = [
     {
-      id: 'auto-code',
-      title: 'Auto-Code',
-      description: 'AI-powered multi-language online IDE with real-time collaboration',
-      tech: ['Next.js', 'TypeScript', 'Docker', 'GCP', 'Convex'],
-      highlights: ['40% faster page transitions', 'Real-time backend', '90+ Lighthouse score'],
-      gradient: 'from-blue-500 to-cyan-500',
+      id: "auto-code",
+      title: "Auto-Code",
+      description:
+        "AI-powered multi-language online IDE with real-time collaboration",
+      tech: ["Next.js", "TypeScript", "Docker", "GCP", "Convex"],
+      highlights: [
+        "40% faster page transitions",
+        "Real-time backend",
+        "90+ Lighthouse score",
+      ],
+      gradient: "from-blue-500 to-cyan-500",
     },
     {
-      id: 'whispr-ai',
-      title: 'WhisprAI',
-      description: 'WhatsApp-inspired chat app with AI bot integration',
-      tech: ['React', 'MongoDB', 'Node.js', 'OpenAI GPT'],
-      highlights: ['Real-time messaging', 'Smart reply suggestions', 'Personality-based modes'],
-      gradient: 'from-emerald-500 to-teal-500',
+      id: "whispr-ai",
+      title: "WhisprAI",
+      description: "WhatsApp-inspired chat app with AI bot integration",
+      tech: ["React", "MongoDB", "Node.js", "OpenAI GPT"],
+      highlights: [
+        "Real-time messaging",
+        "Smart reply suggestions",
+        "Personality-based modes",
+      ],
+      gradient: "from-emerald-500 to-teal-500",
     },
     {
-      id: 'smart-stream',
-      title: 'SmartStream',
-      description: 'Netflix clone with AI-powered smart search',
-      tech: ['React.js', 'Node.js', 'OpenAI NLP', 'TMDB API'],
-      highlights: ['Natural language queries', 'AI recommendations', 'Dynamic search'],
-      gradient: 'from-orange-500 to-red-500',
+      id: "smart-stream",
+      title: "SmartStream",
+      description: "Netflix clone with AI-powered smart search",
+      tech: ["React.js", "Node.js", "OpenAI NLP", "TMDB API"],
+      highlights: [
+        "Natural language queries",
+        "AI recommendations",
+        "Dynamic search",
+      ],
+      gradient: "from-orange-500 to-red-500",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <section className="pt-20 pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div
-            className={`transform transition-all duration-1000 ${
-              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-            }`}
-          >
-            <div className="mb-6 flex items-center gap-3 animate-slide-in-down">
-              <Sparkles className="w-6 h-6 text-blue-600 animate-pulse" />
-              <span className="text-sm font-semibold text-blue-600 uppercase tracking-widest">Welcome to my portfolio</span>
-            </div>
-
-            <div className="relative mb-8">
-              <div className="absolute -left-6 -top-6 w-32 h-32 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-shimmer"></div>
-              <div className="absolute -right-12 top-12 w-40 h-40 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-shimmer" style={{ animationDelay: '1s' }}></div>
-
-              <h1 className="relative text-6xl md:text-8xl font-black mb-3 tracking-tight animate-slide-in-up">
-                <span className="block text-gray-900 mb-2">Aman Kumar</span>
-                <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 bg-clip-text text-transparent bg-size-200 bg-pos-0 hover:bg-pos-100 transition-all duration-1000">
-                  Full-Stack Developer
-                </span>
-              </h1>
-            </div>
-
-            <div className="h-1 w-32 bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 rounded-full mb-8" style={{ animation: 'slideInUp 0.8s ease-out 0.2s both' }}></div>
-            <p className="text-2xl text-gray-700 mb-4 max-w-3xl">
-              Building AI-driven applications from architecture to deployment
-            </p>
-            <p className="text-lg text-gray-600 mb-12 max-w-3xl leading-relaxed">
-              Versatile full-stack developer with experience in the complete project lifecycle,
-              from architecting AI-driven applications with Next.js and Node.js to containerizing
-              with Docker and deploying on scalable cloud platforms like GCP.
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="#projects"
-                className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-medium hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
-              >
-                View Projects
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="mailto:amankumar220203@gmail.com"
-                className="px-8 py-4 bg-white text-gray-800 rounded-xl font-medium hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-gray-200"
-              >
-                Get in Touch
-              </a>
-            </div>
-          </div>
+    <div className="min-h-screen font-sans selection:bg-white/20">
+      {/* =========================================
+          PHASE 1: 3D HERO SECTION 
+      ========================================= */}
+      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center pt-20">
+        {/* 3D Background Canvas */}
+        <div className="absolute inset-0 z-0 opacity-80">
+          <Canvas camera={{ position: [0, 0, 5] }}>
+            <ambientLight intensity={1} />
+            <directionalLight position={[10, 10, 5]} intensity={2} />
+            <AnimatedRing />
+            <Environment preset="city" />
+          </Canvas>
         </div>
+
+        {/* Foreground Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+          >
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="text-white font-medium tracking-wide text-sm">
+              Available for new opportunities
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-6"
+          >
+            Building Digital <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+              Experiences
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
+            className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+          >
+            Full-Stack Engineer specializing in React, Node.js, and architecting
+            performant, interactive web applications that push the boundaries of
+            design.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <a
+              href="#projects"
+              className="group px-8 py-4 rounded-xl bg-white text-black font-semibold hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2"
+            >
+              View Projects
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </a>
+            <a
+              href="mailto:amankumar220203@gmail.com"
+              className="px-8 py-4 rounded-xl bg-black/20 border border-white/10 text-white font-semibold hover:bg-white/10 hover:border-white/20 backdrop-blur-md transition-all flex items-center justify-center"
+            >
+              Get in Touch
+            </a>
+          </motion.div>
+        </div>
+
+        {/* Decorative Dark Gradient Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-950 to-transparent z-10" />
       </section>
 
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold mb-12 text-gray-900">Skills & Technologies</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {skills.map((skill, index) => (
-              <div
-                key={skill.category}
-                className={`p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200 hover:shadow-xl hover:scale-105 transition-all duration-500 transform ${
-                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  {skill.category === 'Frontend' && <Code2 className="w-6 h-6 text-blue-600" />}
-                  {skill.category === 'Backend' && <Database className="w-6 h-6 text-emerald-600" />}
-                  {skill.category === 'AI/ML' && <Cpu className="w-6 h-6 text-purple-600" />}
-                  {skill.category === 'Database' && <Database className="w-6 h-6 text-orange-600" />}
-                  {skill.category === 'DevOps' && <Cloud className="w-6 h-6 text-cyan-600" />}
-                  {skill.category === 'Other' && <Code2 className="w-6 h-6 text-teal-600" />}
-                  <h3 className="text-xl font-bold text-gray-900">{skill.category}</h3>
+      {/* =========================================
+          PHASE 2: FULL-STACK BENTO GRID SKILLS SECTION 
+      ========================================= */}
+      <section className="py-24 px-6 relative overflow-hidden">
+        {/* Holographic Background Orbs */}
+        <div
+          className="absolute top-0 -left-32 w-[600px] h-[600px] bg-cyan-500/20 rounded-full mix-blend-screen filter blur-[120px] pointer-events-none animate-pulse"
+          style={{ animationDuration: "10s" }}
+        />
+        <div
+          className="absolute bottom-0 -right-32 w-[600px] h-[600px] bg-fuchsia-500/20 rounded-full mix-blend-screen filter blur-[120px] pointer-events-none animate-pulse"
+          style={{ animationDuration: "12s", animationDelay: "2s" }}
+        />
+        <div
+          className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-violet-500/20 rounded-full mix-blend-screen filter blur-[120px] pointer-events-none animate-pulse"
+          style={{ animationDuration: "14s", animationDelay: "4s" }}
+        />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="mb-16 text-center md:text-left"
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
+              Technical Arsenal
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl">
+              A comprehensive toolkit spanning robust backend architectures,
+              dynamic frontend interfaces, and intelligent API integrations.
+            </p>
+          </motion.div>
+
+          {/* Bento Grid Layout */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-6 auto-rows-[200px]"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 },
+              },
+            }}
+          >
+            {/* Full-Stack - Large Span */}
+            <HolographicCard
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="md:col-span-2 md:row-span-2 p-8 flex flex-col justify-between group"
+            >
+              <div>
+                <div className="w-12 h-12 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center mb-6 text-cyan-400 group-hover:scale-110 transition-transform">
+                  <Code2 className="w-6 h-6" />
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {skill.items.map((item) => (
-                    <span
-                      key={item}
-                      className="px-3 py-1 bg-white text-gray-700 rounded-lg text-sm font-medium border border-gray-200"
-                    >
-                      {item}
-                    </span>
-                  ))}
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  Full-Stack Development
+                </h3>
+                <p className="text-slate-400 mb-6">
+                  Architecting robust end-to-end web applications with modern
+                  frontend frameworks and scalable Node.js backends.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "React",
+                  "Next.js",
+                  "Node.js",
+                  "Express.js",
+                  "TypeScript",
+                  "Tailwind CSS",
+                ].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg text-sm font-medium hover:scale-105 hover:border-cyan-400/50 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-300 cursor-default"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </HolographicCard>
+
+            {/* AI / ML - Vertical Span */}
+            <HolographicCard
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="md:col-span-1 md:row-span-2 p-8 flex flex-col group"
+            >
+              <div className="w-12 h-12 bg-white/10 border border-white/10 rounded-xl flex items-center justify-center mb-6 text-fuchsia-400 group-hover:scale-110 transition-transform">
+                <Cpu className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                AI Integration
+              </h3>
+              <p className="text-slate-400 mb-auto text-sm">
+                Leveraging powerful LLMs to build intelligent, context-aware
+                user experiences.
+              </p>
+              <div className="flex flex-col gap-2 mt-6">
+                {["Google Gemini API", "Smart Replies", "NLP"].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg text-sm font-medium hover:scale-105 hover:border-fuchsia-400/50 hover:shadow-[0_0_15px_rgba(232,121,249,0.4)] transition-all duration-300 cursor-default text-center"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </HolographicCard>
+
+            {/* Database - Single Block */}
+            <HolographicCard
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="md:col-span-1 md:row-span-1 p-6 flex flex-col justify-center group"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/10 border border-white/10 rounded-lg flex items-center justify-center text-violet-400 group-hover:-rotate-12 transition-transform">
+                  <Database className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Database</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["MongoDB", "Mongoose", "PostgreSQL"].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-3 py-1.5 bg-white/5 border border-white/10 text-white rounded-lg text-xs font-medium hover:scale-105 hover:border-violet-400/50 hover:shadow-[0_0_15px_rgba(167,139,250,0.4)] transition-all duration-300 cursor-default"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </HolographicCard>
+
+            {/* Algorithms - Single Block */}
+            <HolographicCard
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="md:col-span-1 md:row-span-1 p-6 flex flex-col justify-center group"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/10 border border-white/10 rounded-lg flex items-center justify-center text-cyan-400 group-hover:scale-110 transition-transform">
+                  <Code2 className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-white">Core Logic</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {["Data Structures", "Algorithms", "C++ / Java"].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-3 py-1.5 bg-white/5 border border-white/10 text-white rounded-lg text-xs font-medium hover:scale-105 hover:border-cyan-400/50 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all duration-300 cursor-default"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </HolographicCard>
+
+            {/* DevOps - Wide Horizontal Span */}
+            <HolographicCard
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="md:col-span-2 md:row-span-1 p-6 flex flex-col justify-center group"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/10 border border-white/10 rounded-lg flex items-center justify-center text-fuchsia-400 group-hover:-translate-y-1 transition-transform">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    DevOps & Infrastructure
+                  </h3>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex flex-wrap gap-2">
+                {["Docker", "AWS", "CI/CD Pipelines"].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg text-sm font-medium hover:scale-105 hover:border-fuchsia-400/50 hover:shadow-[0_0_15px_rgba(232,121,249,0.4)] transition-all duration-300 cursor-default whitespace-nowrap"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </HolographicCard>
+          </motion.div>
         </div>
       </section>
 
-      <section id="projects" className="py-20 px-6 bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold mb-12 text-gray-900">Featured Projects</h2>
+      {/* =========================================
+          PHASE 3: AURORA GLASSMORPHISM PROJECTS SECTION 
+      ========================================= */}
+      <section
+        id="projects"
+        className="py-32 px-6 relative z-10 overflow-hidden"
+      >
+        {/* Animated Aurora Background Orbs */}
+        <div
+          className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-600/20 rounded-full mix-blend-screen filter blur-[120px] animate-pulse"
+          style={{ animationDuration: "8s" }}
+        />
+        <div
+          className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[120px] animate-pulse"
+          style={{ animationDuration: "10s", animationDelay: "2s" }}
+        />
+        <div
+          className="absolute -bottom-32 left-1/3 w-[600px] h-[600px] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[120px] animate-pulse"
+          style={{ animationDuration: "12s", animationDelay: "4s" }}
+        />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-white tracking-tight">
+              Featured{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-purple-500 to-emerald-400">
+                Projects
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              A curated selection of my latest work, showcasing complex
+              problem-solving, modern tech stacks, and premium user experiences.
+            </p>
+          </motion.div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {projects.map((project, index) => (
-              <Link
-                key={project.id}
-                to={`/projects/${project.id}`}
-                className={`group block transform transition-all duration-500 hover:scale-105 ${
-                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                }`}
-                style={{ transitionDelay: `${index * 150}ms` }}
-              >
-                <div className="h-full p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-200">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${project.gradient} rounded-xl mb-6 flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-500`}>
-                    <Code2 className="w-8 h-8 text-white" />
-                  </div>
-
-                  <h3 className="text-2xl font-bold mb-3 text-gray-900 group-hover:text-blue-600 transition-colors">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {project.description}
-                  </p>
-
-                  <div className="mb-6">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Key Highlights:</p>
-                    <ul className="space-y-1">
-                      {project.highlights.map((highlight) => (
-                        <li key={highlight} className="text-sm text-gray-600 flex items-start gap-2">
-                          <span className="text-blue-600 mt-1">•</span>
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {project.tech.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-lg text-xs font-medium"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-2 text-blue-600 font-medium group-hover:gap-4 transition-all duration-300">
-                    Learn More
-                    <ExternalLink className="w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         </div>
       </section>
-
     </div>
   );
 }

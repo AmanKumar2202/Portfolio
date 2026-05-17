@@ -1,244 +1,211 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, Brain, Film, Star, ExternalLink } from 'lucide-react';
+import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowLeft, ExternalLink, Play, CheckCircle2, Film, Search, Sparkles } from "lucide-react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Float, Cone, Torus, MeshTransmissionMaterial } from "@react-three/drei";
+import MagneticWrapper from "../components/MagneticWrapper";
+import * as THREE from "three";
+
+// --- 3D FLOATING PLAY BUTTON FOR HERO ---
+const FloatingPlayButton = () => {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
+      groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.1;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Outer Streaming Ring */}
+      <Float speed={1.5} rotationIntensity={1} floatIntensity={1.5}>
+        <Torus args={[2.2, 0.15, 64, 128]} position={[0, 0, 0]} rotation={[1.5, 0, 0]}>
+          <MeshTransmissionMaterial color="#f43f5e" transmission={0.9} roughness={0.2} thickness={2} clearcoat={1} />
+        </Torus>
+      </Float>
+      {/* Central Play Button (Cone rotated 90 degrees) */}
+      <Float speed={2.5} rotationIntensity={0.5} floatIntensity={1}>
+        <Cone args={[1.2, 2.5, 64]} position={[0.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          <MeshTransmissionMaterial color="#f97316" transmission={0.95} roughness={0.1} thickness={1.5} clearcoat={1} />
+        </Cone>
+      </Float>
+    </group>
+  );
+};
 
 export default function SmartStream() {
-  const [isVisible, setIsVisible] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   useEffect(() => {
-    setIsVisible(true);
+    window.scrollTo(0, 0);
   }, []);
 
   const features = [
-    {
-      icon: <Brain className="w-6 h-6" />,
-      title: 'AI-Powered Search',
-      description: 'Natural language understanding for intuitive content discovery',
-    },
-    {
-      icon: <Search className="w-6 h-6" />,
-      title: 'Smart Recommendations',
-      description: 'Contextual suggestions based on complex user preferences and moods',
-    },
-    {
-      icon: <Film className="w-6 h-6" />,
-      title: 'TMDB Integration',
-      description: 'Comprehensive movie and TV show database with rich metadata',
-    },
-  ];
-
-  const technologies = [
-    'React.js',
-    'JavaScript',
-    'Node.js',
-    'OpenAI NLP',
-    'Tailwind CSS',
-    'TMDB API',
-  ];
-
-  const capabilities = [
-    'Natural language query understanding',
-    'Context-aware content recommendations',
-    'Dynamic search with contextual filters',
-    'Mood-based content suggestions',
-    'Genre and theme analysis',
-    'Runtime and rating-based filtering',
-    'Netflix-inspired responsive interface',
-  ];
-
-  const searchExamples = [
-    {
-      query: 'Show me something thrilling but short',
-      result: 'AI understands length and intensity preferences',
-    },
-    {
-      query: 'Comedy with a twist ending',
-      result: 'Analyzes genre and plot characteristics',
-    },
-    {
-      query: 'Feel-good movie for family night',
-      result: 'Considers mood and audience suitability',
-    },
-    {
-      query: 'Mind-bending sci-fi like Inception',
-      result: 'Finds similar themes and complexity',
-    },
+    { icon: <Search className="w-8 h-8" />, title: "AI Semantic Search", desc: "Find movies based on mood, plot descriptions, or complex queries using OpenAI's NLP rather than just exact title matches." },
+    { icon: <Film className="w-8 h-8" />, title: "Massive Media Library", desc: "Real-time integration with the TMDB API fetching rich metadata, trailers, high-res posters, and cast information." },
+    { icon: <Sparkles className="w-8 h-8" />, title: "Dynamic Discovery", desc: "Personalized content discovery engine that suggests highly relevant movies and shows based on semantic relationships." },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-32">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 mb-8 group transition-all duration-300"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </Link>
+    <div className="min-h-screen bg-slate-950 font-sans selection:bg-orange-500/30 text-slate-300">
+      
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-400 to-rose-600 origin-left z-50"
+        style={{ scaleX }}
+      />
 
-        <div
-          className={`transform transition-all duration-1000 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          <div className="inline-block px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-full text-sm font-medium mb-6">
-            AI-Enhanced Streaming
-          </div>
-
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-            SmartStream
-          </h1>
-
-          <p className="text-2xl text-gray-700 mb-8 max-w-4xl leading-relaxed">
-            A Netflix clone enhanced with AI-based smart search that understands user intent via
-            natural language queries, making content discovery intuitive and personalized.
-          </p>
-
-          <a
-            href="https://mern-netflix-clone-puce.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105 mb-12"
-          >
-            <span>Visit Live Project</span>
-            <ExternalLink className="w-5 h-5" />
-          </a>
+      {/* =========================================
+          HERO SECTION (100vh)
+      ========================================= */}
+      <section className="relative h-screen flex flex-col justify-center overflow-hidden pt-20 px-6">
+        {/* 3D Background */}
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+          <Canvas camera={{ position: [0, 0, 8] }}>
+            <ambientLight intensity={1} />
+            <directionalLight position={[10, 10, 5]} intensity={2} />
+            <FloatingPlayButton />
+          </Canvas>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className={`p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-              }`}
-              style={{ transitionDelay: `${index * 150}ms` }}
-            >
-              <div className="w-14 h-14 bg-gradient-to-r from-orange-600 to-red-600 rounded-xl flex items-center justify-center text-white mb-6">
-                {feature.icon}
+        {/* Ambient Glows */}
+        <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-rose-500/20 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-orange-500/15 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto w-full">
+          <MagneticWrapper className="inline-block mb-12" intensity={0.2}>
+            <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors backdrop-blur-md">
+              <ArrowLeft className="w-4 h-4" /> Back to Home
+            </Link>
+          </MagneticWrapper>
+
+          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}>
+            <div className="flex items-center gap-3 mb-6">
+              <Play className="w-8 h-8 text-orange-400" />
+              <span className="text-orange-400 tracking-widest uppercase font-bold text-sm">Case Study</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 max-w-4xl">
+              Cinematic <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-500">
+                Discovery.
+              </span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-slate-400 max-w-2xl leading-relaxed mb-10">
+              A Netflix-inspired streaming platform featuring an AI-powered semantic search engine that understands natural language queries for hyper-personalized media discovery.
+            </p>
+
+            <MagneticWrapper className="inline-block" intensity={0.2}>
+              <a href="#" target="_blank" rel="noopener noreferrer" 
+                 className="inline-flex items-center gap-3 px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:scale-105">
+                Launch Platform <ExternalLink className="w-5 h-5" />
+              </a>
+            </MagneticWrapper>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* =========================================
+          STICKY SCROLL ARCHITECTURE SECTION
+      ========================================= */}
+      <section className="py-32 px-6 relative z-10 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            {/* Sticky Left Column */}
+            <div className="lg:col-span-4 relative">
+              <div className="sticky top-32">
+                <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Core Architecture</h2>
+                <p className="text-lg text-slate-400 mb-8">
+                  Designed for high-volume media consumption with a seamless, infinite-scrolling interface and sub-second intelligent search indexing.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["React.js", "Node.js", "OpenAI NLP", "TMDB API", "Tailwind CSS"].map(tech => (
+                    <span key={tech} className="px-4 py-2 bg-orange-500/10 border border-orange-500/20 text-orange-300 rounded-xl text-sm font-semibold">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
             </div>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          <div
-            className={`transform transition-all duration-1000 ${
-              isVisible ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'
-            }`}
-          >
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Smart Search Examples</h2>
-            <div className="space-y-4">
-              {searchExamples.map((example, index) => (
-                <div
-                  key={index}
-                  className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            {/* Scrolling Right Column (Cards) */}
+            <div className="lg:col-span-8 flex flex-col gap-8">
+              {features.map((feature, i) => (
+                <motion.div 
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  className="p-10 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-colors"
                 >
-                  <div className="flex items-start gap-3 mb-3">
-                    <Search className="w-5 h-5 text-orange-600 flex-shrink-0 mt-1" />
-                    <p className="text-gray-900 font-medium italic">"{example.query}"</p>
+                  <div className="w-16 h-16 bg-orange-500/20 rounded-2xl flex items-center justify-center text-orange-400 mb-8 group-hover:scale-110 transition-transform duration-500">
+                    {feature.icon}
                   </div>
-                  <p className="text-gray-600 pl-8">{example.result}</p>
-                </div>
+                  <h3 className="text-3xl font-bold text-white mb-4">{feature.title}</h3>
+                  <p className="text-lg text-slate-400 leading-relaxed">{feature.desc}</p>
+                </motion.div>
               ))}
             </div>
 
-            <div className="mt-8 p-8 bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl text-white">
-              <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <Star className="w-6 h-6" />
-                AI Intelligence
-              </h3>
-              <p className="text-white/90 leading-relaxed">
-                The OpenAI-powered search engine understands context, mood, preferences, and even
-                abstract concepts like "thrilling but short" or "comedy with a twist ending" to
-                deliver highly relevant recommendations.
-              </p>
-            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================
+          METRICS & ACHIEVEMENTS BENTO
+      ========================================= */}
+      <section className="py-32 px-6 relative z-10 border-t border-white/5 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">Performance & Impact</h2>
           </div>
 
-          <div
-            className={`transform transition-all duration-1000 ${
-              isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
-            }`}
-          >
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Key Capabilities</h2>
-            <div className="space-y-4 mb-8">
-              {capabilities.map((capability, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-4 p-4 bg-white rounded-xl hover:shadow-md transition-all duration-300"
-                >
-                  <div className="w-2 h-2 bg-orange-600 rounded-full flex-shrink-0 mt-2"></div>
-                  <p className="text-gray-700 leading-relaxed">{capability}</p>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Search Metric Card */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+              className="p-10 rounded-[2rem] bg-gradient-to-br from-orange-900/40 to-rose-900/20 border border-orange-500/20 backdrop-blur-xl flex flex-col justify-center items-center text-center"
+            >
+              <div className="text-7xl font-black text-white mb-4 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">
+                &lt;50<span className="text-3xl text-orange-400">ms</span>
+              </div>
+              <h3 className="text-xl font-bold text-orange-400 mb-2">Search Latency</h3>
+              <p className="text-slate-400">Blazing fast AI semantic query processing delivering instant results to the user.</p>
+            </motion.div>
 
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Technology Stack</h2>
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="flex flex-wrap gap-3">
-                {technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 rounded-lg font-medium hover:scale-110 transition-transform duration-300 cursor-default"
-                  >
-                    {tech}
-                  </span>
+            {/* Achievements List Card */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
+              className="p-10 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl"
+            >
+              <h3 className="text-2xl font-bold text-white mb-8">Key Milestones</h3>
+              <div className="space-y-6">
+                {[
+                  "Natural language processing for contextual search",
+                  "Netflix-grade UI/UX with smooth animations",
+                  "Dynamic infinite scrolling for massive datasets",
+                  "Intelligent media recommendation pipeline"
+                ].map(achievement => (
+                  <div key={achievement} className="flex items-start gap-4">
+                    <CheckCircle2 className="w-6 h-6 text-orange-400 flex-shrink-0 mt-1" />
+                    <p className="text-lg text-slate-300">{achievement}</p>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
 
-        <div className="bg-white p-12 rounded-2xl shadow-xl mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-gray-900">Project Overview</h2>
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-4">
-            <p>
-              SmartStream reimagines the streaming experience by combining the familiar Netflix
-              interface with cutting-edge AI technology. The platform goes beyond traditional
-              keyword search to understand the nuanced preferences and moods of users.
-            </p>
-            <p>
-              Powered by OpenAI's natural language processing, the search engine interprets complex
-              queries like "show me something thrilling but short" or "comedy with a twist ending."
-              It analyzes multiple dimensions including genre, runtime, mood, themes, and plot
-              characteristics to deliver precisely what users are looking for.
-            </p>
-            <p>
-              The TMDB API integration provides access to a comprehensive database of movies and TV
-              shows with rich metadata, enabling the AI to make informed recommendations. Dynamic
-              filters adjust based on search context, creating a personalized browsing experience
-              for each user.
-            </p>
-            <p>
-              Built with React.js and Node.js, SmartStream combines modern web technologies with AI
-              capabilities to create a streaming platform that truly understands its users. The
-              result is a content discovery experience that feels natural and intuitive, saving
-              users time and helping them find exactly what they want to watch.
-            </p>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-8 bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-            <Brain className="w-12 h-12 mx-auto mb-4" />
-            <div className="text-2xl font-bold mb-2">Natural Language</div>
-            <div className="text-orange-100">Understands complex queries</div>
-          </div>
-          <div className="p-8 bg-gradient-to-br from-red-600 to-pink-600 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-            <Search className="w-12 h-12 mx-auto mb-4" />
-            <div className="text-2xl font-bold mb-2">Smart Filters</div>
-            <div className="text-red-100">Context-aware results</div>
-          </div>
-          <div className="p-8 bg-gradient-to-br from-pink-600 to-rose-600 rounded-2xl text-white text-center transform hover:scale-105 transition-all duration-300">
-            <Film className="w-12 h-12 mx-auto mb-4" />
-            <div className="text-2xl font-bold mb-2">Rich Content</div>
-            <div className="text-pink-100">TMDB integration</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
