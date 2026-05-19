@@ -1,5 +1,42 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, MotionValue } from "framer-motion";
+
+// Helper component to render each individual comet tail segment with its own staggered physics
+function TailSegment({
+  index,
+  mouseX,
+  mouseY,
+}: {
+  index: number;
+  mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
+}) {
+  const x = useSpring(mouseX, {
+    stiffness: 300 - index * 25,
+    damping: 30 + index * 2,
+  });
+  const y = useSpring(mouseY, {
+    stiffness: 300 - index * 25,
+    damping: 30 + index * 2,
+  });
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 rounded-full pointer-events-none z-[9998]"
+      style={{
+        x,
+        y,
+        width: 12 - index,
+        height: 12 - index,
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        opacity: 0.8 - index * 0.1,
+        translateX: "-50%",
+        translateY: "-50%",
+        mixBlendMode: "difference",
+      }}
+    />
+  );
+}
 
 export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
@@ -56,6 +93,17 @@ export default function CustomCursor() {
 
   return (
     <div className="pointer-events-none z-[9999]">
+      {/* The Comet Tail Array */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <TailSegment
+          key={`tail-${i}`}
+          index={i}
+          mouseX={mouseX}
+          mouseY={mouseY}
+        />
+      ))}
+
+      {/* The Main Interactive Ring */}
       <motion.div
         className="fixed top-0 left-0 w-8 h-8 border-[1.5px] border-white rounded-full pointer-events-none z-[9999] flex items-center justify-center"
         style={{

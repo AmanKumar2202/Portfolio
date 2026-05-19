@@ -2,10 +2,25 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProgress } from "@react-three/drei";
 
+const PHRASES = [
+  "Plotting star coordinates...",
+  "Calibrating nebulae...",
+  "Initializing warp drive...",
+  "Launching..."
+];
+
 export default function Preloader() {
   // useProgress automatically tracks the loading state of any <Canvas> elements
   const { progress, active } = useProgress();
   const [isLoading, setIsLoading] = useState(true);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // When progress hits 100% and it's no longer actively loading
@@ -39,6 +54,18 @@ export default function Preloader() {
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.1, ease: "linear" }}
             />
+          </div>
+          
+          <div className="mt-8 h-6 overflow-hidden relative w-full flex justify-center text-slate-400 font-medium tracking-wide">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={phraseIndex}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >{PHRASES[phraseIndex]}</motion.span>
+            </AnimatePresence>
           </div>
         </motion.div>
       )}

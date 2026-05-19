@@ -1,50 +1,12 @@
-import { useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  Code2,
-  Database,
-  Cloud,
-  Cpu,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowRight, Code2, Database, Cloud, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import {
-  TorusKnot,
-  Environment,
-  MeshTransmissionMaterial,
-} from "@react-three/drei";
-import * as THREE from "three";
+import { Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Environment } from "@react-three/drei";
 import HolographicCard from "../components/HolographicCard";
-
-// --- 3D GLASS RING ---
-const AnimatedRing = () => {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.getElapsedTime() * 0.15;
-      meshRef.current.rotation.y = state.clock.getElapsedTime() * 0.2;
-    }
-  });
-
-  return (
-    <TorusKnot ref={meshRef} args={[1, 0.3, 128, 64]} scale={1.8}>
-      <MeshTransmissionMaterial
-        backside
-        thickness={1.5}
-        roughness={0}
-        transmission={1}
-        ior={1.5}
-        chromaticAberration={0.05}
-        clearcoat={1}
-        anisotropy={0.1}
-        color="#ffffff"
-      />
-    </TorusKnot>
-  );
-};
+import Hero3DText from "../components/Hero3DText";
+import StickyScrollSection from "../components/StickyScrollSection";
 
 function ProjectCard({
   project,
@@ -181,62 +143,37 @@ export default function Home() {
   return (
     <div className="min-h-screen font-sans selection:bg-white/20">
       {/* =========================================
-          PHASE 1: 3D HERO SECTION 
+          PHASE 2: 3D INTERACTIVE HERO SECTION 
       ========================================= */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center pt-20">
-        {/* 3D Background Canvas */}
-        <div className="absolute inset-0 z-0 opacity-80">
-          <Canvas camera={{ position: [0, 0, 5] }}>
+      <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center pt-20">
+        {/* 3D Hero Text Canvas */}
+        <div className="absolute inset-0 z-10 pointer-events-auto">
+          <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
             <ambientLight intensity={1} />
             <directionalLight position={[10, 10, 5]} intensity={2} />
-            <AnimatedRing />
-            <Environment preset="city" />
+            <Suspense fallback={null}>
+              <Hero3DText />
+              <Environment preset="city" />
+            </Suspense>
           </Canvas>
         </div>
 
-        {/* Foreground Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        {/* Foreground Subtitle & CTA underneath */}
+        <div className="relative z-20 mt-auto pb-32 pointer-events-none flex flex-col items-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
+            initial={{ filter: "blur(12px)", opacity: 0, y: 30 }}
+            animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 80,
+              damping: 20,
+              delay: 0.6,
+            }}
+            className="flex flex-col items-center pointer-events-auto"
           >
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-            <span className="text-white font-medium tracking-wide text-sm">
-              Available for new opportunities
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-6"
-          >
-            Building Digital <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
-              Experiences
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-            className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            Full-Stack Engineer specializing in React, Node.js, and architecting
-            performant, interactive web applications that push the boundaries of
-            design.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
+            <p className="text-xl md:text-2xl text-slate-300 font-medium mb-8 tracking-wide drop-shadow-lg">
+              Full-Stack Engineer
+            </p>
             <a
               href="#projects"
               className="group px-8 py-4 rounded-xl bg-white text-black font-semibold hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2"
@@ -244,17 +181,11 @@ export default function Home() {
               View Projects
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
-            <a
-              href="mailto:amankumar220203@gmail.com"
-              className="px-8 py-4 rounded-xl bg-black/20 border border-white/10 text-white font-semibold hover:bg-white/10 hover:border-white/20 backdrop-blur-md transition-all flex items-center justify-center"
-            >
-              Get in Touch
-            </a>
           </motion.div>
         </div>
 
         {/* Decorative Dark Gradient Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-950 to-transparent z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-950 to-transparent z-10 pointer-events-none" />
       </section>
 
       {/* =========================================
@@ -459,6 +390,11 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* =========================================
+          PHASE 3: STICKY-SCROLL CONSTELLATION SKILLS SECTION 
+      ========================================= */}
+      <StickyScrollSection />
 
       {/* =========================================
           PHASE 3: AURORA GLASSMORPHISM PROJECTS SECTION 
