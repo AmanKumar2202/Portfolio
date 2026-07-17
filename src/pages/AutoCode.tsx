@@ -8,7 +8,6 @@ import {
   Cloud,
   ExternalLink,
   Code2,
-  Cpu,
   CheckCircle2,
 } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
