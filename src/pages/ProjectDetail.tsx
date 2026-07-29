@@ -1,10 +1,19 @@
+import { lazy, Suspense } from "react";
 import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import SEO from "../components/SEO";
 import { getProject } from "../data/projects";
+const AutoCode = lazy(() => import("./AutoCode"));
+const ChatbotService = lazy(() => import("./ChatbotService"));
+const WhisprAI = lazy(() => import("./WhisprAI"));
+
+const CaseStudyFallback = () => <div className="grid min-h-screen place-items-center bg-slate-950 text-sm text-slate-400">Loading case study…</div>;
 
 export default function ProjectDetail() {
   const { projectId } = useParams();
+  if (projectId === "whispr-intelligence") return <Suspense fallback={<CaseStudyFallback />}><ChatbotService /></Suspense>;
+  if (projectId === "auto-code") return <Suspense fallback={<CaseStudyFallback />}><AutoCode /></Suspense>;
+  if (projectId === "whispr-ai") return <Suspense fallback={<CaseStudyFallback />}><WhisprAI /></Suspense>;
   const project = getProject(projectId);
   if (!project) return <Navigate to="/" replace />;
   return <>

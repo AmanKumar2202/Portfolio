@@ -1,61 +1,216 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
+  Accessibility,
   ArrowLeft,
-  Zap,
-  TrendingUp,
-  Cloud,
-  ExternalLink,
+  ArrowUpRight,
+  Braces,
+  Check,
+  Clock3,
   Code2,
-  CheckCircle2,
+  FileCode2,
+  Gauge,
+  LockKeyhole,
+  Play,
+  Radio,
+  ServerCog,
+  Share2,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Workflow,
+  Zap,
 } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Box, MeshTransmissionMaterial } from "@react-three/drei";
+import { Box, Float, MeshTransmissionMaterial } from "@react-three/drei";
 import MagneticWrapper from "../components/MagneticWrapper";
+import SEO from "../components/SEO";
 import * as THREE from "three";
 
-// --- 3D FLOATING CODE BLOCKS FOR HERO ---
-const FloatingBlocks = () => {
+const featureGroups = [
+  {
+    id: "workspace",
+    label: "Workspace",
+    icon: Code2,
+    title: "A focused, multi-language IDE",
+    summary:
+      "The browser workspace pairs Monaco editing with durable drafts and a controlled execution pipeline.",
+    features: [
+      "Ten pinned JavaScript, TypeScript, Python, Java, C#, C++, Go, Rust, Ruby and Swift runtimes",
+      "Per-language draft persistence when switching runtimes",
+      "Multiple Monaco themes plus independent light and dark application themes",
+      "Structured compile, runtime, timeout and validation feedback",
+      "Authenticated execution history and user statistics",
+    ],
+  },
+  {
+    id: "rooms",
+    label: "Live rooms",
+    icon: Users,
+    title: "Pair programming without screen sharing",
+    summary:
+      "Short-lived rooms turn a solo editor into a reactive workspace for pairing and technical interviews.",
+    features: [
+      "Six-character room links with automatic four-hour expiry",
+      "Code synchronization through 400 ms debounced Convex updates",
+      "Presence avatars backed by participant heartbeats",
+      "Shared execution output for every connected participant",
+      "Pair mode, host-locked interview mode and guest read-only access",
+    ],
+  },
+  {
+    id: "community",
+    label: "Review",
+    icon: Share2,
+    title: "Code that can become a conversation",
+    summary:
+      "Developers can publish reviewable snippets and discuss implementation details without creating a repository.",
+    features: [
+      "Authenticated snippet publishing with titles and language metadata",
+      "Public snippet discovery and personal execution profiles",
+      "Starred snippets with duplicate-safe toggle behavior",
+      "Formatted discussions with code-block previews",
+      "Ownership-checked deletion and one-click code copying",
+    ],
+  },
+  {
+    id: "security",
+    label: "Trust",
+    icon: ShieldCheck,
+    title: "Execution is treated as a server capability",
+    summary:
+      "Identity, entitlement, quotas and resource limits are enforced before untrusted source reaches Piston.",
+    features: [
+      "Clerk authentication at the Next.js and Convex boundaries",
+      "Transactional rolling quota of ten executions per user per minute",
+      "Pinned runtimes, 50K-character source limits and bounded output",
+      "Compile, run and network timeouts with accepted/rejected audit logs",
+      "Sanitized comments, ownership checks and internal-only trusted mutations",
+    ],
+  },
+  {
+    id: "delivery",
+    label: "Delivery",
+    icon: Workflow,
+    title: "Built beyond the happy path",
+    summary:
+      "Subscriptions, verification, accessibility and failure states are part of the system rather than demo polish.",
+    features: [
+      "Signature-verified Clerk and Lemon Squeezy webhooks",
+      "Server-enforced Pro runtime entitlements",
+      "Error boundaries, custom not-found states and stable loading skeletons",
+      "Keyboard-operable selectors and accessible names throughout",
+      "Strict linting, type checks, integration tests, CI and pre-commit hooks",
+    ],
+  },
+];
+
+const metrics = [
+  {
+    value: "10",
+    label: "language runtimes",
+    detail: "Pinned and server validated",
+    icon: Braces,
+  },
+  {
+    value: "4h",
+    label: "collaboration rooms",
+    detail: "Automatic expiry and cleanup",
+    icon: Clock3,
+  },
+  {
+    value: "10/min",
+    label: "execution quota",
+    detail: "Transactional rolling window",
+    icon: Gauge,
+  },
+  {
+    value: "100",
+    label: "accessibility & SEO",
+    detail: "Measured mobile Lighthouse",
+    icon: Accessibility,
+  },
+];
+
+const engineeringWins = [
+  {
+    icon: Zap,
+    value: "56%",
+    title: "Smaller profile entry bundle",
+    text: "Route-level splitting reduced initial profile JavaScript from 528 kB to 234 kB.",
+  },
+  {
+    icon: FileCode2,
+    value: "60%",
+    title: "Smaller snippet entry bundle",
+    text: "Lazy-loaded syntax highlighting and comments reduced snippet detail from 496 kB to 196 kB.",
+  },
+  {
+    icon: Radio,
+    value: "0.058",
+    title: "Measured layout shift",
+    text: "Stable authentication and selector placeholders reduced CLS from 0.925 in the mobile audit.",
+  },
+  {
+    icon: LockKeyhole,
+    value: "10/10",
+    title: "Regression tests passing",
+    text: "Coverage includes quotas, rejected audits, subscriptions, stars, sanitization and editor persistence.",
+  },
+];
+
+const stack = [
+  "Next.js 15",
+  "TypeScript",
+  "React 19",
+  "Convex",
+  "Clerk",
+  "Monaco",
+  "Piston",
+  "Lemon Squeezy",
+  "Vitest",
+  "Docker",
+];
+
+function FloatingBlocks() {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.1;
-    }
+    if (!groupRef.current) return;
+    const elapsed = state.clock.getElapsedTime();
+    groupRef.current.rotation.y = elapsed * 0.1;
+    groupRef.current.rotation.x = Math.sin(elapsed * 0.35) * 0.1;
   });
 
   return (
     <group ref={groupRef}>
-      <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-        <Box args={[1, 1, 1]} position={[-2, 1, -2]} rotation={[0.5, 0.5, 0]}>
+      <Float speed={1.7} rotationIntensity={0.8} floatIntensity={1.3}>
+        <Box args={[1.2, 1.2, 1.2]} position={[-1.4, 0.9, -1.5]} rotation={[0.5, 0.5, 0]}>
           <MeshTransmissionMaterial
-            color="#0ea5e9"
+            color="#f97316"
             transmission={0.9}
-            roughness={0.1}
-            thickness={2}
+            roughness={0.15}
+            thickness={1.5}
           />
         </Box>
       </Float>
-      <Float speed={1.5} rotationIntensity={2} floatIntensity={1.5}>
-        <Box
-          args={[1.5, 1.5, 1.5]}
-          position={[2, -1, -1]}
-          rotation={[-0.5, 0.2, 0.5]}
-        >
+      <Float speed={1.4} rotationIntensity={1.1} floatIntensity={1}>
+        <Box args={[1.55, 1.55, 1.55]} position={[1.7, -0.8, -1]} rotation={[-0.4, 0.2, 0.5]}>
           <MeshTransmissionMaterial
-            color="#38bdf8"
-            transmission={0.9}
+            color="#f59e0b"
+            transmission={0.88}
             roughness={0.2}
-            thickness={1.5}
+            thickness={1.3}
           />
         </Box>
       </Float>
     </group>
   );
-};
+}
 
 export default function AutoCode() {
+  const [activeGroup, setActiveGroup] = useState(featureGroups[0]);
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
@@ -63,209 +218,239 @@ export default function AutoCode() {
     window.scrollTo(0, 0);
   }, []);
 
-  const features = [
-    {
-      icon: <Zap className="w-8 h-8" />,
-      title: "Lightning Fast",
-      desc: "40% faster page transitions and 30% lower TTI compared to traditional MVC-based web apps. Every millisecond optimized.",
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8" />,
-      title: "Real-Time Sync",
-      desc: "50% reduction in data-fetch latency with Convex backend, eliminating client-side state management complexity entirely.",
-    },
-    {
-      icon: <Cloud className="w-8 h-8" />,
-      title: "Serverless Scale",
-      desc: "Sub-second cold starts and 90+ Lighthouse scores. Containerized with Docker and deployed effortlessly on Google Cloud.",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-slate-950 font-sans selection:bg-sky-500/30 text-slate-300">
-      {/* Scroll Progress Bar */}
+    <div className="project-case project-case-codeforge min-h-screen overflow-hidden bg-stone-950 font-sans text-stone-300 selection:bg-orange-400/25">
+      <SEO
+        title="CodeForge — Secure browser IDE and collaborative rooms"
+        description="A multi-language browser IDE with controlled code execution, reactive collaboration rooms, reviewable snippets, transactional quotas, and production-minded delivery."
+      />
+
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-400 to-blue-600 origin-left z-50"
+        className="fixed inset-x-0 top-0 z-50 h-1 origin-left bg-gradient-to-r from-orange-400 to-amber-400"
         style={{ scaleX }}
       />
 
-      {/* =========================================
-          HERO SECTION (Dynamic Height)
-      ========================================= */}
-      <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-32 pb-24 px-6">
-        {/* 3D Background */}
-        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
-          <Canvas camera={{ position: [0, 0, 8] }}>
-            <ambientLight intensity={1} />
-            <directionalLight position={[10, 10, 5]} intensity={2} />
+      <section className="relative flex min-h-[92vh] items-center overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32">
+        <div className="pointer-events-none absolute right-[-12%] top-1/2 h-[620px] w-[620px] -translate-y-1/2 opacity-55 md:right-0">
+          <Canvas camera={{ position: [0, 0, 7] }} dpr={[1, 1.5]}>
+            <ambientLight intensity={1.2} />
+            <directionalLight position={[8, 8, 5]} intensity={1.7} />
             <FloatingBlocks />
           </Canvas>
         </div>
+        <div className="pointer-events-none absolute left-[12%] top-[24%] h-80 w-80 rounded-full bg-orange-500/10 blur-[110px]" />
 
-        {/* Ambient Glows */}
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-500/20 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
-
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <MagneticWrapper className="inline-block mb-12">
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
+          <MagneticWrapper className="mb-12 inline-block" intensity={0.16}>
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors backdrop-blur-md"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm backdrop-blur-md transition-colors hover:bg-white/10"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Home
+              <ArrowLeft className="h-4 w-4" /> Back to projects
             </Link>
           </MagneticWrapper>
 
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="max-w-4xl"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <Code2 className="w-8 h-8 text-sky-400" />
-              <span className="text-sky-400 tracking-widest uppercase font-bold text-sm">
-                Case Study
-              </span>
+            <div className="mb-6 flex items-center gap-3 text-sm font-bold uppercase tracking-[0.2em] text-orange-400">
+              <Sparkles className="h-5 w-5" />
+              Auto-Code, evolved into CodeForge
             </div>
-
-            <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 max-w-4xl">
-              Next-Gen <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-600">
-                Code Environment.
+            <h1 className="max-w-4xl text-5xl font-black tracking-[-0.06em] text-white sm:text-6xl md:text-8xl">
+              Code together.
+              <span className="block bg-gradient-to-r from-orange-300 to-amber-400 bg-clip-text text-transparent">
+                Run with guardrails.
               </span>
             </h1>
-
-            <p className="text-xl md:text-2xl text-slate-400 max-w-2xl leading-relaxed mb-10">
-              An AI-powered, multi-language online IDE delivering exceptional
-              performance with real-time collaboration capabilities.
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-stone-400 md:text-xl">
+              A multi-language browser IDE for quick experiments, reviewable snippets,
+              pair programming, and technical interviews—with execution security enforced
+              on the server.
             </p>
-
-            <MagneticWrapper className="inline-block" intensity={0.2}>
-              <a
-                href="https://auto-code-mu.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-sky-500 hover:bg-sky-400 text-white rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(14,165,233,0.4)] hover:scale-105"
-              >
-                Launch Platform <ExternalLink className="w-5 h-5" />
-              </a>
-            </MagneticWrapper>
+            <div className="mt-10 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+              <MagneticWrapper className="inline-block" intensity={0.16}>
+                <a
+                  href="https://auto-code-mu.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-6 py-3.5 font-bold text-stone-950 transition-all hover:bg-orange-400"
+                >
+                  Open live app <ArrowUpRight className="h-5 w-5" />
+                </a>
+              </MagneticWrapper>
+              <span className="inline-flex items-center gap-2 text-sm text-stone-400">
+                <ShieldCheck className="h-4 w-4 text-orange-400" />
+                Authenticated, quota-controlled execution
+              </span>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* =========================================
-          STICKY SCROLL ARCHITECTURE SECTION
-      ========================================= */}
-      <section className="py-32 px-6 relative z-10 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Sticky Left Column */}
-            <div className="lg:col-span-4 relative">
-              <div className="sticky top-32">
-                <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
-                  Core Architecture
-                </h2>
-                <p className="text-lg text-slate-400 mb-8">
-                  Built from the ground up to handle intense computational loads
-                  while maintaining a buttery-smooth 60fps interface.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Next.js", "TypeScript", "Convex", "Docker", "GCP"].map(
-                    (tech) => (
-                      <span
-                        key={tech}
-                        className="px-4 py-2 bg-sky-500/10 border border-sky-500/20 text-sky-300 rounded-xl text-sm font-semibold"
-                      >
-                        {tech}
-                      </span>
-                    ),
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Scrolling Right Column (Cards) */}
-            <div className="lg:col-span-8 flex flex-col gap-8">
-              {features.map((feature, i) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
-                  className="p-10 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl group hover:bg-white/10 transition-colors"
-                >
-                  <div className="w-16 h-16 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-400 mb-8 group-hover:scale-110 transition-transform duration-500">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-3xl font-bold text-white mb-4">
-                    {feature.title}
-                  </h3>
-                  <p className="text-lg text-slate-400 leading-relaxed">
-                    {feature.desc}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+      <section className="border-y border-white/5 bg-white/[0.025] px-4 py-7 sm:px-6 sm:py-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-2">
+          {stack.map((item) => (
+            <span
+              key={item}
+              className="rounded-lg border border-white/10 bg-stone-900/70 px-3 py-2 text-xs font-semibold text-stone-300"
+            >
+              {item}
+            </span>
+          ))}
         </div>
       </section>
 
-      {/* =========================================
-          METRICS & ACHIEVEMENTS BENTO
-      ========================================= */}
-      <section className="py-32 px-6 relative z-10 border-t border-white/5 bg-black/20">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
-              Performance & Impact
+      <section className="px-4 py-20 sm:px-6 sm:py-24 md:py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-400">Product systems</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+              More than an editor and a Run button.
             </h2>
+            <p className="mt-5 text-lg leading-relaxed text-stone-400">
+              Explore the workspace, collaboration, community, security, and delivery layers.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Lighthouse Metric Card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="p-10 rounded-[2rem] bg-gradient-to-br from-sky-900/40 to-blue-900/20 border border-sky-500/20 backdrop-blur-xl flex flex-col justify-center items-center text-center"
-            >
-              <div className="text-7xl font-black text-white mb-4 drop-shadow-[0_0_15px_rgba(56,189,248,0.5)]">
-                90+
-              </div>
-              <h3 className="text-xl font-bold text-sky-400 mb-2">
-                Lighthouse Score
-              </h3>
-              <p className="text-slate-400">
-                Achieved optimal performance metrics across accessibility, best
-                practices, and SEO.
-              </p>
-            </motion.div>
+          <div className="mt-12 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1" role="tablist" aria-label="CodeForge feature areas">
+              {featureGroups.map((group) => {
+                const Icon = group.icon;
+                const active = activeGroup.id === group.id;
+                return (
+                  <button
+                    key={group.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setActiveGroup(group)}
+                    className={`flex min-h-20 items-center gap-3 rounded-2xl border px-4 text-left transition-all ${
+                      active
+                        ? "border-orange-400/40 bg-orange-400/10 text-white"
+                        : "border-white/10 bg-white/[0.025] text-stone-400 hover:border-white/20 hover:bg-white/5"
+                    }`}
+                  >
+                    <span className={`rounded-xl p-2 ${active ? "bg-orange-400/15 text-orange-300" : "bg-white/5"}`}>
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-bold">{group.label}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* Achievements List Card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="p-10 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-xl"
+              key={activeGroup.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28 }}
+              role="tabpanel"
+              className="relative min-h-[430px] overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-7 md:p-10"
             >
-              <h3 className="text-2xl font-bold text-white mb-8">
-                Key Milestones
-              </h3>
-              <div className="space-y-6">
-                {[
-                  "Engineered multi-language compilation engine",
-                  "Integrated live theming & webhooks",
-                  "Built role-based execution dashboards",
-                ].map((achievement) => (
-                  <div key={achievement} className="flex items-start gap-4">
-                    <CheckCircle2 className="w-6 h-6 text-sky-400 flex-shrink-0 mt-1" />
-                    <p className="text-lg text-slate-300">{achievement}</p>
+              <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-orange-500/10 blur-3xl" />
+              <activeGroup.icon className="h-10 w-10 text-orange-400" />
+              <h3 className="mt-7 text-3xl font-black text-white">{activeGroup.title}</h3>
+              <p className="mt-4 max-w-2xl leading-relaxed text-stone-400">{activeGroup.summary}</p>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {activeGroup.features.map((feature) => (
+                  <div key={feature} className="flex gap-3 rounded-xl border border-white/[0.07] bg-stone-950/35 p-4">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-400/15 text-orange-300">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    <span className="text-sm leading-relaxed text-stone-300">{feature}</span>
                   </div>
                 ))}
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/5 bg-black/20 px-4 py-20 sm:px-6 sm:py-24 md:py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-400">Verified capabilities</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+              Concrete limits. Clear guarantees.
+            </h2>
+          </div>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {metrics.map((metric, index) => {
+              const Icon = metric.icon;
+              return (
+                <motion.article
+                  key={metric.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: index * 0.06 }}
+                  className="rounded-3xl border border-orange-400/15 bg-orange-400/[0.06] p-6"
+                >
+                  <Icon className="h-6 w-6 text-orange-400" />
+                  <div className="mt-7 text-4xl font-black tracking-tight text-white">{metric.value}</div>
+                  <div className="mt-2 font-bold text-orange-300">{metric.label}</div>
+                  <div className="mt-1 text-xs text-stone-500">{metric.detail}</div>
+                </motion.article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-20 sm:px-6 sm:py-24 md:py-32">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-400">Measured outcomes</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl md:text-5xl">
+              Faster entry points. Stable interactions.
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-stone-400">
+              Results from the documented local production build and mobile Lighthouse audit.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-4 md:grid-cols-2">
+            {engineeringWins.map((win, index) => {
+              const Icon = win.icon;
+              return (
+                <motion.article
+                  key={win.title}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-70px" }}
+                  transition={{ delay: index * 0.06 }}
+                  className="group rounded-3xl border border-white/10 bg-white/[0.035] p-7 transition-colors hover:border-orange-400/25 hover:bg-white/[0.055]"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-400/10 text-orange-400">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <strong className="text-3xl font-black text-white">{win.value}</strong>
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold text-white">{win.title}</h3>
+                  <p className="mt-3 leading-relaxed text-stone-400">{win.text}</p>
+                </motion.article>
+              );
+            })}
+          </div>
+
+          <div className="mt-16 flex flex-col items-center rounded-[2rem] border border-orange-400/20 bg-gradient-to-r from-orange-500/10 to-amber-500/5 px-6 py-12 text-center">
+            <ServerCog className="h-8 w-8 text-orange-400" />
+            <h2 className="mt-5 text-3xl font-black text-white">Try the workspace.</h2>
+            <p className="mt-3 max-w-xl text-stone-400">
+              Write and run code, publish a snippet, or start a room for a live session.
+            </p>
+            <a
+              href="https://auto-code-mu.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-bold text-stone-950 transition-transform hover:-translate-y-0.5"
+            >
+              Launch CodeForge <Play className="h-5 w-5" />
+            </a>
           </div>
         </div>
       </section>

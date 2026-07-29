@@ -1,36 +1,71 @@
 # Aman Kumar — Developer Portfolio
 
-A modern, responsive portfolio showcasing my professional experience, engineering projects, technical skills, and approach to building reliable software.
+A responsive engineering portfolio presenting my backend and full-stack experience, technical capabilities, and production-oriented project case studies.
 
 ## Live Portfolio
 
-Visit the portfolio at **[amankumar2202.vercel.app](https://amankumar2202.vercel.app/)**.
+**[View the deployed portfolio](https://amankumar2202.vercel.app/)**
 
-## About
+## Overview
 
-I’m Aman Kumar, a backend-focused full-stack developer based in Bengaluru, India. I build secure APIs, real-time systems, transactional workflows, and polished web experiences using technologies such as Node.js, Django, React, Next.js, MongoDB, PostgreSQL, Redis, and Docker.
+I am Aman Kumar, a backend-focused full-stack developer based in Bengaluru, India. I build secure APIs, real-time applications, AI-enabled services, and scalable data systems with a focus on reliability, performance, and maintainable architecture.
 
-This portfolio presents my work through detailed engineering case studies, with an emphasis on architecture, data integrity, concurrency, performance, and measurable outcomes.
+The portfolio goes beyond project summaries by documenting system design decisions, implementation details, security controls, infrastructure, testing, and measurable engineering outcomes.
 
-## Highlights
+## Featured Projects
 
-- Professional experience with quantified engineering impact
-- Detailed case studies for Ledger-Safe, Auto-Code, and WhisprAI
-- Responsive layouts optimized for desktop, tablet, and mobile
-- Accessible light and dark themes
-- Smooth, purposeful animations using Framer Motion
-- SEO and social-sharing metadata
-- Reusable React components and data-driven project pages
+### Whispr Intelligence
+
+A locally operated AI/ML service built with FastAPI, scikit-learn, Sentence Transformers, ChromaDB, and Redis. It combines confidence-gated intent classification, specialized agents, structured tools, user-isolated RAG, extractive summarization, and production-ready observability and deployment assets.
+
+### WhisprAI
+
+A full-stack messaging and personal-assistant platform built with React, Express, Socket.IO, MongoDB, Redis, and BullMQ. It supports rich real-time communication, document intelligence, productivity tools, selective privacy, background processing, and horizontally scalable infrastructure.
+
+### CodeForge
+
+A collaborative browser IDE built with Next.js, TypeScript, Monaco, Convex, Clerk, and Piston. It provides guarded multi-language execution, authenticated history, reviewable community snippets, and short-lived pairing or interview rooms with synchronized code and output.
+
+## Portfolio Features
+
+- Responsive experience across desktop, tablet, and mobile devices
+- Dedicated, route-based engineering case studies
+- Fully clickable and keyboard-accessible project cards
+- Light and dark themes with persistent user preference
+- Embedded résumé viewer with direct viewing and download actions
+- Framer Motion page and interaction animations
+- Per-page SEO metadata through React Helmet Async
+- Personalized transparent favicon and consistent visual identity
+- Reusable components and data-driven project content
 
 ## Technology Stack
 
-- **Frontend:** React, TypeScript, React Router
-- **Styling:** Tailwind CSS and custom CSS
-- **Animation:** Framer Motion
-- **Icons:** Lucide React
-- **SEO:** React Helmet Async
-- **Build tooling:** Vite
-- **Deployment:** Vercel
+| Area | Technologies |
+| --- | --- |
+| Application | React 18, TypeScript, React Router |
+| Styling | Custom CSS, responsive layouts, theme variables |
+| Motion and visuals | Framer Motion, Three.js, React Three Fiber, Drei |
+| UI assets | Lucide React |
+| SEO | React Helmet Async |
+| Tooling | Vite, ESLint, TypeScript |
+| Deployment | Vercel |
+
+## Project Structure
+
+```text
+.
+├── public/                 Static assets and favicon
+├── src/
+│   ├── components/        Navigation, SEO, résumé, and reusable UI
+│   ├── data/              Structured project and case-study content
+│   ├── pages/             Home and project case-study pages
+│   ├── App.tsx            Routing and shared application layout
+│   ├── index.css          Themes, components, and responsive styles
+│   └── main.tsx           React application entry point
+├── index.html             Document metadata and application mount
+├── package.json           Dependencies and development scripts
+└── vite.config.ts         Vite configuration
+```
 
 ## Running Locally
 
@@ -48,67 +83,35 @@ npm install
 npm run dev
 ```
 
-Open the local address displayed by Vite in your browser.
+Open the local URL shown by Vite, normally `http://localhost:5173`.
 
 ## Available Scripts
 
-```bash
-npm run dev
-```
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Create an optimized production build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint across the project |
+| `npm run typecheck` | Validate TypeScript without emitting files |
 
-Starts the development server.
-
-```bash
-npm run build
-```
-
-Creates an optimized production build.
-
-```bash
-npm run lint
-```
-
-Runs ESLint across the project.
+## Production Build
 
 ```bash
 npm run typecheck
+npm run lint
+npm run build
 ```
 
-Checks the TypeScript source without generating output.
-
-## Project Structure
-
-```text
-src/
-├── components/       Reusable navigation, layout, and UI components
-├── data/             Project case-study content
-├── pages/            Homepage and project detail pages
-├── App.tsx           Application routes and shared layout
-├── index.css         Theme, responsive layout, and component styles
-└── main.tsx          Application entry point
-```
-
-## Featured Work
-
-### Ledger-Safe
-
-A concurrency-safe payout engine with an append-only ledger, idempotent APIs, database locking, and asynchronous payout processing.
-
-### Auto-Code
-
-An AI-powered, multi-language online IDE built with real-time infrastructure to reduce data-fetch latency and improve navigation performance.
-
-### WhisprAI
-
-A secure real-time messaging platform with authentication, presence, media sharing, protected WebSockets, and extensible AI capabilities.
+The generated production assets are written to `dist/`.
 
 ## Contact
 
+- **Portfolio:** [amankumar2202.vercel.app](https://amankumar2202.vercel.app/)
 - **Email:** [amankumar220203@gmail.com](mailto:amankumar220203@gmail.com)
 - **LinkedIn:** [linkedin.com/in/aman-kumar-a402a7229](https://www.linkedin.com/in/aman-kumar-a402a7229/)
 - **GitHub:** [github.com/AmanKumar2202](https://github.com/AmanKumar2202)
-- **Portfolio:** [amankumar2202.vercel.app](https://amankumar2202.vercel.app/)
 
 ---
 
-Designed and built by Aman Kumar.
+Designed and developed by Aman Kumar.

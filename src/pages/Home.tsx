@@ -1,18 +1,21 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Briefcase, Check, Code2, Database, Gauge, GitBranch, Mail, MapPin, ServerCog, Sparkles, Terminal } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SEO from "../components/SEO";
+import ResumeSection from "../components/ResumeSection";
 import { projects } from "../data/projects";
 
 const reveal = { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.55 } };
 const skills = [
-  ["Languages", "JavaScript, TypeScript, C++, SQL, HTML, CSS"],
-  ["Backend", "Node.js, Express, Django, REST APIs, Redis, Celery"],
-  ["Frontend", "React.js, Next.js, responsive UI, accessibility"],
-  ["Data & tools", "MongoDB, MySQL, PostgreSQL, Docker, Git, Postman"],
+  ["Languages", "Python, TypeScript, JavaScript, C++, SQL, HTML, CSS"],
+  ["AI & machine learning", "scikit-learn, NLP, TF-IDF, Sentence Transformers, RAG, Chroma, SymPy"],
+  ["Backend & data", "FastAPI, Node.js, Express, Django, Redis, MongoDB, PostgreSQL"],
+  ["Frontend & platform", "React, Next.js, Convex, Docker, Kubernetes, Prometheus, Git"],
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return <>
     <SEO title="Aman Kumar — Full-stack & backend developer" description="Backend-focused full-stack developer building secure, scalable products with Node.js, Django, React, and modern data systems." />
     <section className="hero section-shell" id="home">
@@ -44,9 +47,14 @@ export default function Home() {
 
     <section className="projects-section section" id="projects"><div className="section-shell">
       <motion.div {...reveal} className="section-heading split"><div><p className="kicker">Selected engineering work</p><h2>Projects with depth behind the interface.</h2></div><p>Each case study explains the problem, the architecture, and the engineering decisions that make the product dependable.</p></motion.div>
-      <div className="project-list">{projects.map((project, index) => <motion.article {...reveal} key={project.id} className={`project-row accent-${project.accent}`}>
+      <div className="project-list">{projects.map((project, index) => <motion.article {...reveal} key={project.id} className={`project-row accent-${project.accent}`} role="link" tabIndex={0} aria-label={`Read ${project.title} case study`} onClick={() => navigate(`/projects/${project.id}`)} onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          navigate(`/projects/${project.id}`);
+        }
+      }}>
         <div className="project-index">0{index + 1}</div><div className="project-visual"><span className="visual-label">CASE STUDY / 0{index + 1}</span><div className="mock-browser"><div className="mock-top"><span/><span/><span/><em>{project.id}.app</em></div><div className="mock-sidebar"><i/><i/><i/><i/></div><div className="mock-content"><small>{project.eyebrow}</small><b>{project.title}</b><i/><i/><div className="mock-action">Explore system <ArrowRight size={11}/></div></div></div><span className="visual-stack">{project.stack[0]} + {project.stack[1]}</span></div>
-        <div className="project-copy"><p className="kicker">{project.eyebrow}</p><h3>{project.title}</h3><p>{project.summary}</p><ul>{project.outcomes.slice(0, 2).map(item => <li key={item.label}><Check size={15}/> <strong>{item.value}</strong> {item.label}</li>)}</ul><div className="tag-row">{project.stack.slice(0, 5).map(tech => <span key={tech}>{tech}</span>)}</div><Link to={`/projects/${project.id}`} className="text-link">Read case study <ArrowRight size={17}/></Link></div>
+        <div className="project-copy"><p className="kicker">{project.eyebrow}</p><h3>{project.title}</h3><p>{project.summary}</p><ul>{project.outcomes.slice(0, 2).map(item => <li key={item.label}><Check size={15}/> <strong>{item.value}</strong> {item.label}</li>)}</ul><div className="tag-row">{project.stack.slice(0, 5).map(tech => <span key={tech}>{tech}</span>)}</div><Link to={`/projects/${project.id}`} className="text-link" onClick={(event) => event.stopPropagation()}>Read case study <ArrowRight size={17}/></Link></div>
       </motion.article>)}</div>
     </div></section>
 
@@ -54,6 +62,8 @@ export default function Home() {
       <motion.div {...reveal} className="section-heading"><p className="kicker">Technical toolkit</p><h2>From data model to final interaction.</h2><p>I work across the stack, with particular depth in backend architecture, transactional safety, and real-time applications.</p></motion.div>
       <div className="skill-grid">{skills.map(([title, copy], index) => <motion.article {...reveal} transition={{ duration: .5, delay: index * .06 }} key={title}><span>0{index + 1}</span>{index === 0 ? <Code2/> : index === 1 ? <ServerCog/> : index === 2 ? <Sparkles/> : <Database/>}<h3>{title}</h3><p>{copy}</p></motion.article>)}</div>
     </section>
+
+    <ResumeSection />
 
     <section className="section-shell section about" id="about"><motion.div {...reveal} className="about-card"><div><p className="kicker">Beyond the code</p><h2>Strong fundamentals. Practical execution.</h2></div><div><p>My background combines a B.Tech from IIIT Naya Raipur with a PG Diploma in Advanced Computing from CDAC Bengaluru. I care about clear trade-offs, maintainable systems, and products that hold up beyond the demo.</p><div className="principles"><span><Briefcase/> Production-minded engineering</span><span><Check/> Clear ownership and communication</span><span><Gauge/> Performance and reliability by design</span></div></div></motion.div></section>
     <section className="section-shell contact" id="contact"><motion.div {...reveal}><span className="contact-code">OPEN_TO_OPPORTUNITIES = true;</span><p className="kicker">Looking for an engineer?</p><h2>Let’s build software that earns trust.</h2><p>I’m open to backend and full-stack engineering opportunities where thoughtful systems, strong fundamentals, and product ownership matter.</p><a className="button primary" href="mailto:amankumar220203@gmail.com"><Mail size={18}/> Email Aman</a></motion.div></section>
