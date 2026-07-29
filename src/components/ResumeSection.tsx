@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Download, Eye, FileText, Loader2 } from "lucide-react";
 
-const resumeId = "1kaBHy6CddhERAWWMCB5vzvooE6W4eHXE";
+const resumeId = "1m1mcZJXRDmu2eZZXbw5yYWJEKp5IBP6s";
 const previewUrl = `https://drive.google.com/file/d/${resumeId}/preview`;
 const viewUrl = `https://drive.google.com/file/d/${resumeId}/view`;
 const downloadUrl = `https://drive.google.com/uc?export=download&id=${resumeId}`;
